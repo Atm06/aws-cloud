@@ -1,0 +1,68 @@
+To Create a self-signed key and certificate pair with a single OpenSSL command:
+
+$ sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/ssl/private/apache-selfsigned
+
+Create a new snippet in the /etc/apache2/conf-available directory. We’ll create the files using nano and name the file ssl-params.conf to make its purpose clear.
+
+$ sudo nano /etc/apache2/conf-available/ssl-params.conf
+
+Modify /etc/apache2/sites-available/default-ssl.conf, the default Apache SSL Virtual Host file. If you’re using a different server block file, substitute its name in the following commands.
+
+To back up the original SSL Virtual Host file:
+
+$ sudo cp /etc/apache2/sites-available/default-ssl.conf /etc/apache2/sites-available/default-ssl.conf.ba
+
+ To open the SSL Virtual Host file to make adjustments:
+
+$ sudo nano /etc/apache2/sites-available/default-ssl.conf
+
+To adjust the unencrypted Virtual Host file to redirect all traffic to be SSL encrypted, open the /etc/apache2/sites-available/000-default.conf file:
+
+$ sudo nano /etc/apache2/sites-available/000-default.conf
+
+View the list of available profiles by running the following:
+
+$ sudo ufw app list
+
+To review the current setting by checking the status:
+
+$ sudo ufw status
+
+To allow additional HTTPS traffic, you can allow the “Apache Full” profile and then delete the redundant “Apache” profile allowance:
+
+$ sudo ufw allow 'Apache Full'
+$ sudo ufw delete allow 'Apache'
+
+Enable mod_ssl, the Apache SSL module, and mod_headers, which is needed by some of the settings in the SSL snippet, with the a2enmod command:
+
+$ sudo a2enmod ssl
+$ sudo a2enmod headers
+
+Next, enable your SSL Virtual Host with the a2ensite command:
+
+$ sudo a2ensite default-ssl
+
+You’ll also need to enable your ssl-params.conf file, to read in the values you set:
+
+$ sudo a2enconf ssl-params
+
+to make sure that there are no syntax errors in your files with a test:
+
+$ sudo apache2ctl configtest
+
+safely restart Apache to implement your changes:
+
+$ sudo systemctl restart apache2
+
+If your redirect worked correctly and you are sure you want to allow only encrypted traffic, you should modify the unencrypted Apache Virtual Host again to make the redirect permanent.
+Open your server block configuration file again:
+
+$ sudo nano /etc/apache2/sites-available/000-default.conf
+
+Check your configuration for syntax errors:
+
+$ sudo apache2ctl configtest
+
+When you’re ready, restart Apache to make the redirect permanent:
+
+$ sudo systemctl restart apache2
