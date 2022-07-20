@@ -1,0 +1,85 @@
+Step 2 — Configuring Apache to Use SSL
+
+You’ve successfully created your key and certificate files under the /etc/ssl directory. 
+Now, you need to modify your Apache configuration to take advantage of these.
+
+You’ll do this by making a few adjustments to the configuration:
+
+Create a configuration snippet to specify strong default SSL settings.
+
+Modify the included SSL Apache Virtual Host file to point to your generated SSL certificates.(Recommended) 
+
+Modify the unencrypted Virtual Host file to automatically redirect requests to the encrypted Virtual Host.
+
+When you’re finished, you will have a secure SSL configuration.
+
+Creating an Apache Configuration Snippet with Strong Encryption Settings
+To begin, create an Apache configuration snippet to define some SSL settings. This will set Apache up with a strong SSL cipher suite and enable some advanced features that will help keep your server secure. The parameters you’ll set can be used by any Virtual Hosts enabling SSL.
+
+Create a new snippet in the /etc/apache2/conf-available directory. In this example, we’ll create the files using "nano" and name the file ssl-params.conf to make its purpose clear. Feel free to use your preferred text editor:
+
+"$ sudo nano /etc/apache2/conf-available/ssl-params.conf"
+
+Save and close the file when you are finished. If you’re using nano, you can do this by pressing CTRL + X, then Y and ENTER.
+
+Modifying the Default Apache SSL Virtual Host File
+Next, you’ll modify /etc/apache2/sites-available/default-ssl.conf, the default Apache SSL Virtual Host file. If you’re using a different server block file, substitute its name in the following commands.
+
+Before you begin, back up the original SSL Virtual Host file:
+
+$ sudo cp /etc/apache2/sites-available/default-ssl.conf /etc/apache2/sites-available/default-ssl.conf.bak
+
+Now, open the SSL Virtual Host file to make adjustments:
+
+$ sudo nano /etc/apache2/sites-available/default-ssl.conf
+
+
+You’ll be making some minor adjustments to the file. First set the normal things you’d want to adjust in a Virtual Host file (such as ServerAdmin email address, ServerName, etc., and adjust the SSL directives to point to your certificate and key files).
+
+After making these changes, your server block should result in the following:
+
+/etc/apache2/sites-available/default-ssl.conf
+<IfModule mod_ssl.c>
+        <VirtualHost _default_:443>
+                ServerAdmin your_email@example.com
+                ServerName server_domain_or_IP
+
+                DocumentRoot /var/www/html
+
+                ErrorLog ${APACHE_LOG_DIR}/error.log
+                CustomLog ${APACHE_LOG_DIR}/access.log combined
+
+                SSLEngine on
+
+                SSLCertificateFile      /etc/ssl/certs/apache-selfsigned.crt
+                SSLCertificateKeyFile /etc/ssl/private/apache-selfsigned.key
+
+                <FilesMatch "\.(cgi|shtml|phtml|php)$">
+                                SSLOptions +StdEnvVars
+                </FilesMatch>
+                <Directory /usr/lib/cgi-bin>
+                                SSLOptions +StdEnvVars
+                </Directory>
+
+        </VirtualHost>
+</IfModule>
+
+**Modifying the HTTP Host File to Redirect to HTTPS :**
+
+As it stands now, the server will provide both unencrypted HTTP and encrypted HTTPS traffic. For better security, it is recommended in most cases to redirect HTTP to HTTPS automatically. If you do not want or need this functionality, you can safely skip this section.
+
+To adjust the unencrypted Virtual Host file to redirect all traffic to be SSL encrypted, open the /etc/apache2/sites-available/000-default.conf file:
+
+$ sudo nano /etc/apache2/sites-available/000-default.conf
+
+Within the VirtualHost configuration blocks, add a Redirect directive, pointing all traffic to the SSL version of the site:
+
+/etc/apache2/sites-available/000-default.conf
+<VirtualHost *:80>
+        . . .
+
+        Redirect "/" "https://your_domain_or_IP/"
+
+        . . .
+</VirtualHost>
+Save and close the file when you are finished.
