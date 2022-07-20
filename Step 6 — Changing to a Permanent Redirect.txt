@@ -1,0 +1,30 @@
+Step 6 — Changing to a Permanent Redirect
+
+If your redirect worked correctly and you are sure you want to allow only encrypted traffic, you should modify the unencrypted Apache Virtual Host again to make the redirect permanent.
+
+Open your server block configuration file again:
+
+	$ sudo nano /etc/apache2/sites-available/000-default.conf
+
+Find the Redirect line you added earlier. Add "permanent" to that line, which changes the redirect from a 302 temporary redirect to a 301 permanent redirect:
+
+
+<VirtualHost *:80>
+        . . .
+
+        Redirect permanent "/" "https://your_domain_or_IP/"
+
+        . . .
+</VirtualHost>
+
+Save and close the file.
+
+Check your configuration for syntax errors:
+
+	$ sudo apache2ctl configtest
+
+When you’re ready, restart Apache to make the redirect permanent:
+
+	$ sudo systemctl restart apache2
+
+You’ve successfully made the redirect permanent to allow only encrypted traffic.
