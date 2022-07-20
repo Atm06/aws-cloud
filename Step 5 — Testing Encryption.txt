@@ -1,0 +1,21 @@
+Step 5 — Testing Encryption
+Now it’s time to test your SSL server. Start by opening your web browser and type https:// followed by your server’s domain name or IP into the address bar:
+
+https://server_domain_or_IP
+Because the certificate you created isn’t signed by one of your browser’s trusted certificate authorities, you will likely receive a warning like the following:
+
+https://assets.digitalocean.com/articles/apache_ssl_1604/self_signed_warning.png
+
+
+This is expected and normal. We are only interested in the encryption aspect of our certificate, not the third party validation of our host’s authenticity. Click ADVANCED and then the link provided to proceed to your host anyways:
+
+https://assets.digitalocean.com/articles/apache_ssl_1604/warning_override.png
+
+
+You should be taken to your site. In the browser address bar, you will have a lock with an “x” over it. This means that the certificate cannot be validated. It is still encrypting your connection.
+
+If you configured Apache to redirect HTTP to HTTPS, you can also check whether the redirect functions correctly:
+
+http://server_domain_or_IP
+
+If this results in the same icon, this means that your redirect worked correctly.
