@@ -1,0 +1,51 @@
+Step 3 — Adjusting the Firewall
+If you have the ufw firewall enabled, as recommended by the prerequisite guides, you might need to adjust the settings to allow for SSL traffic. Luckily, Apache registers a few profiles with ufw upon installation.
+
+View the list of available profiles by running the following:
+
+$ sudo ufw app list
+
+The output should be as follows:
+
+Output
+Available applications:
+  Apache
+  Apache Full
+  Apache Secure
+  OpenSSH
+
+You can review the current setting by checking the status:
+
+$ sudo ufw status
+
+If you allowed only regular HTTP traffic earlier, your output results will be like the following:
+
+Output
+Status: active
+
+To                         Action      From
+--                         ------      ----
+OpenSSH                    ALLOW       Anywhere
+Apache                     ALLOW       Anywhere
+OpenSSH (v6)               ALLOW       Anywhere (v6)
+Apache (v6)                ALLOW       Anywhere (v6)
+To allow additional HTTPS traffic, you can allow the “Apache Full” profile and then delete the redundant “Apache” profile allowance:
+
+	$ sudo ufw allow 'Apache Full'
+	$ sudo ufw delete allow 'Apache'
+
+Confirm the changes by checking the status:
+	$ sudo ufw status
+
+Output
+Status: active
+
+Sometimes the status doesn't show "active" due to some issues with the previous configurations. Just make sure you add all details, domain name etc. correctly.
+To                         Action      From
+--                         ------      ----
+OpenSSH                    ALLOW       Anywhere
+Apache Full                ALLOW       Anywhere
+OpenSSH (v6)               ALLOW       Anywhere (v6)
+Apache Full (v6)           ALLOW       Anywhere (v6)
+
+You’ve now successfully allowed Apache traffic to your firewall.
